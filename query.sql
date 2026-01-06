@@ -1,11 +1,14 @@
+-- Identifica o registro mais recente por entidade
 WITH LATEST_RECORD_BY_ENTITY AS (
     SELECT
-        ranked.entity_id,
-        ranked.entity_code,
-        ranked.record_id
+        ranked_latest.entity_id,
+        ranked_latest.entity_code,
+        ranked_latest.record_id
     FROM (
         SELECT
-            hist.*,
+            hist.entity_id,
+            hist.entity_code,
+            hist.record_id,
             ROW_NUMBER() OVER (
                 PARTITION BY hist.entity_id
                 ORDER BY rec.record_id DESC
@@ -13,8 +16,8 @@ WITH LATEST_RECORD_BY_ENTITY AS (
         FROM entity_history hist
         INNER JOIN records rec
             ON rec.record_id = hist.record_id
-    ) ranked
-    WHERE ranked.rn_latest = 1
+    ) ranked_latest
+    WHERE ranked_latest.rn_latest = 1
 )
 
 SELECT
